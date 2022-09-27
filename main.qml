@@ -5,20 +5,18 @@ import QtQuick.Window
 import QtQuick.LocalStorage
 import QtQuick.Layouts
 
-
 Window {
     id: mainApplicationWindow
     width: Screen.desktopAvailableWidth / 2
     height: Screen.desktopAvailableHeight / 2
     visible: true
     title: qsTr("File hexer")
-
-    readonly property real textFieldMinimumWidth: mainApplicationWindow.width / 4
-    readonly property color mainBackColor: "#ffe4b5"
-    readonly property color itemsColor: "#daa520"
-
     color: mainBackColor
 
+    readonly property real textFieldMinimumWidth: mainApplicationWindow.width / 4
+    readonly property real butttonMinimumWidth: mainApplicationWindow.width / 8
+    readonly property color mainBackColor: "#ffe4b5"
+    readonly property color itemsColor: "#daa520"
 
     ColumnLayout  {
         anchors.top: parent.top
@@ -27,6 +25,7 @@ Window {
         anchors.leftMargin: parent.width / 30
 
         TextField {
+            id: maskInputFiles
             Layout.minimumWidth: textFieldMinimumWidth
             Layout.alignment: Qt.AlignLeft
             placeholderText: "Enter the mask of the input files"
@@ -46,9 +45,20 @@ Window {
                 placeholderText: "Enter the path to the input files"
             }
 
+            Button {
+                Layout.minimumWidth: butttonMinimumWidth
+                text: qsTr("Choose a path")
+                onClicked: filePathChooser.open()
+            }
         }
 
     }
+
+
+    FilePathChooser{
+        id: filePathChooser
+    }
+
 
 
 }

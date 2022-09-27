@@ -14,7 +14,7 @@ qt_add_executable(appTaskFromCalibri
 qt_add_qml_module(appTaskFromCalibri
     URI TaskFromCalibri
     VERSION 1.0
-    QML_FILES main.qml 
+    QML_FILES main.qml FilePathChooser.qml
 )
 
 set_target_properties(appTaskFromCalibri PROPERTIES
