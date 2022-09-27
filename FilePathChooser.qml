@@ -1,12 +1,10 @@
 import QtQuick
 import QtQuick.Dialogs
 
-FileDialog {
-    nameFilters: [maskInputFiles.text]
-    fileMode: FileDialog.OpenFiles
+
+FolderDialog {
 
     onAccepted: {
-
-       console.log(currentFiles)
+       console.log(currentFolder)
     }
 }

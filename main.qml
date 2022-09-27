@@ -17,7 +17,6 @@ Window {
     readonly property real butttonMinimumWidth: mainApplicationWindow.width / 8
     readonly property color mainBackColor: "#ffe4b5"
     readonly property color itemsColor: "#daa520"
-    //property list<url> filesPath
 
     ColumnLayout  {
         anchors.top: parent.top
@@ -50,6 +49,22 @@ Window {
                 Layout.minimumWidth: butttonMinimumWidth
                 text: qsTr("Choose a path")
                 onClicked: filePathChooser.open()
+            }
+        }
+
+        ColumnLayout {
+            Layout.alignment: Qt.AlignLeft
+
+            Label {
+                text: qsTr("Actions when repeating the file name: ")
+            }
+
+            RadioButton {
+                checked: true
+                text: qsTr("Overwrite files")
+            }
+            RadioButton {
+                text: qsTr("Modify file names")
             }
         }
 
