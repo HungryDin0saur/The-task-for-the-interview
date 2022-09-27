@@ -17,6 +17,7 @@ Window {
     readonly property real butttonMinimumWidth: mainApplicationWindow.width / 8
     readonly property color mainBackColor: "#ffe4b5"
     readonly property color itemsColor: "#daa520"
+    //property list<url> filesPath
 
     ColumnLayout  {
         anchors.top: parent.top
