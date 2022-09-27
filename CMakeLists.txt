@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.2 COMPONENTS Quick REQUIRED)
 
 qt_add_executable(appTaskFromCalibri
-    main.cpp
+    main.cpp filemodifier.h filemodifier.cpp
 )
 
 qt_add_qml_module(appTaskFromCalibri

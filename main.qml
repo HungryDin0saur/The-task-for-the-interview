@@ -19,6 +19,8 @@ Window {
     readonly property color itemsColor: "#daa520"
 
     ColumnLayout  {
+        id: settingsLayout
+
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.topMargin: parent.height / 30
@@ -68,13 +70,60 @@ Window {
             }
         }
 
+        ColumnLayout {
+
+            Label {
+                text: qsTr("Frequency of checking for the presence of input files (sec): ")
+            }
+
+            SpinBox {
+                Layout.alignment: Qt.AlignLeft
+            }
+        }
+
+
+        ColumnLayout {
+            Layout.alignment: Qt.AlignLeft
+
+            Label {
+                text: qsTr("File modification methods: ")
+            }
+
+            RadioButton {
+                checked: true
+                text: qsTr("XOR")
+            }
+            RadioButton {
+                text: qsTr("empty")
+            }
+            RadioButton {
+                text: qsTr("empty")
+            }
+            RadioButton {
+                text: qsTr("empty")
+            }
+            RadioButton {
+                text: qsTr("empty")
+            }
+        }
+
+    }
+
+    Button {
+        width: butttonMinimumWidth
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.bottomMargin: parent.height / 30
+        anchors.rightMargin: parent.width / 30
+        text: qsTr("Set up settings")
+
+        onClicked: {
+            //setUpSettings();
+        }
     }
 
 
     FilePathChooser{
         id: filePathChooser
     }
-
-
-
 }

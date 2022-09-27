@@ -1,6 +1,10 @@
 import QtQuick
 import QtQuick.Dialogs
 
-FileDialog {
 
+FolderDialog {
+
+    onAccepted: {
+       console.log(currentFolder)
+    }
 }
