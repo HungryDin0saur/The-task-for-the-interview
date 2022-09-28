@@ -5,8 +5,9 @@
 #include <QFile>
 #include <QDir>
 #include <QDirIterator>
+
 #include <stack>
-#include <iostream>
+#include <functional>
 
 #include <QDebug>
 
@@ -31,7 +32,15 @@ private:
     std::stack<QString> fileList;
 
     const std::stack<QString>& lookFiles(const QString folder, QString fileFilters);
-    void openAndModify(std::stack<QString> fileList, const unsigned short int FileModMethods);
+    void openAndModify(std::stack<QString> fileList, std::function<QByteArray&&(QByteArray&&)> methodFileModPtr);
+
+    static QByteArray&& xOR(QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodSecond(QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodThird(QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodFourth(QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodFifth(QByteArray &&fileDataBuf);
+
+    std::function<QByteArray&&(QByteArray&&)> methodFileModPtr = nullptr;
 
 public slots:
     void setUpSettings(QString fileMask, const bool deleteImputFile, const QString &foolder,

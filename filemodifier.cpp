@@ -17,6 +17,8 @@ FileModifier::~FileModifier()
 {
     fileDataBuf.clear();
 
+    methodFileModPtr = nullptr;
+
     delete file;
     delete dir;
 }
@@ -34,15 +36,18 @@ const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString
     return this->fileList;
 }
 
-void FileModifier::openAndModify(std::stack<QString> fileList, const unsigned short FileModMethods)
+void FileModifier::openAndModify(std::stack<QString> fileList,
+                                 std::function<QByteArray &&(QByteArray &&)> methodFileModPtr)
 {
+
+
     while(!fileList.empty())
     {
         this->file->setFileName(fileList.top());
         if(this->file->open(QFile::ReadWrite))
         {
             fileDataBuf = std::move(this->file->readAll());
-            qDebug() << fileDataBuf.size();
+            //methodFileModPtr(fileDataBuf)
         }
         else{
             //Кунуть исключени
@@ -52,16 +57,33 @@ void FileModifier::openAndModify(std::stack<QString> fileList, const unsigned sh
     }
 
 
-    //switch (FileModMethods) {
-    //case value:
-
-    //    break;
-    //default:
-    //    break;
-    //}
 
 }
 
+QByteArray &&FileModifier::xOR(QByteArray &&fileDataBuf)
+{
+    return nullptr;
+}
+
+QByteArray &&FileModifier::modMethodSecond(QByteArray &&fileDataBuf)
+{
+
+}
+
+QByteArray &&FileModifier::modMethodThird(QByteArray &&fileDataBuf)
+{
+
+}
+
+QByteArray &&FileModifier::modMethodFourth(QByteArray &&fileDataBuf)
+{
+
+}
+
+QByteArray &&FileModifier::modMethodFifth(QByteArray &&fileDataBuf)
+{
+
+}
 
 void FileModifier::setUpSettings(QString fileMask, const bool deleteImputFile, const QString& foolder,
                                  const bool ActionsRepeatingFile, const unsigned long FrequencyCheckingFiles,
@@ -74,5 +96,28 @@ void FileModifier::setUpSettings(QString fileMask, const bool deleteImputFile, c
     this->FrequencyCheckingFiles = FrequencyCheckingFiles;
     this->FileModMethods = FileModMethods;
 
+
+    switch (FileModMethods) {
+    case 0:
+        methodFileModPtr = xOR;
+        break;
+    case 1:
+        methodFileModPtr = modMethodSecond;
+        break;
+    case 2:
+        methodFileModPtr = modMethodThird;
+        break;
+    case 3:
+        methodFileModPtr = modMethodFourth;
+        break;
+    case 4:
+        methodFileModPtr = modMethodFifth;
+        break;
+    default:
+        //Здесь можно бросить исключение
+        break;
+    }
+
     openAndModify(lookFiles(this->foolder, this->fileMask), this->FileModMethods);
 }
+
