@@ -33,6 +33,14 @@ Window {
             placeholderText: "Enter the mask of the input files"
         }
 
+        TextField {
+            id: fieldIEnencryptionKey
+            Layout.minimumWidth: textFieldMinimumWidth
+            Layout.alignment: Qt.AlignLeft
+            inputMask: "00000000000000000000"
+            placeholderText: "Enter the encryption key"
+        }
+
         CheckBox {
             id: checkDelInputFile
             Layout.alignment: Qt.AlignLeft
@@ -134,8 +142,8 @@ Window {
             text: qsTr("Set up settings and start")
 
             onClicked: {
-                setUpSettings(maskInputFiles.text, checkDelInputFile.checked, folderInput.text, overwriteFilesCheck.checked,
-                              frequencyTime.value, 0);
+                setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
+                              overwriteFilesCheck.checked, frequencyTime.value, 0);
             }
         }
     }

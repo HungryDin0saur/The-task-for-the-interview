@@ -37,9 +37,9 @@ const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString
 }
 
 void FileModifier::openAndModify(std::stack<QString> fileList,
-                                 std::function<QByteArray &&(QByteArray &&)> methodFileModPtr)
+                                 std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
 {
-
+    quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
 
     while(!fileList.empty())
     {
@@ -47,7 +47,7 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
         if(this->file->open(QFile::ReadWrite))
         {
             fileDataBuf = std::move(this->file->readAll());
-            //methodFileModPtr(fileDataBuf)
+            methodFileModPtr(enKey, std::move(fileDataBuf));
         }
         else{
             //Кунуть исключени
@@ -55,69 +55,72 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 
         fileList.pop();
     }
-
-
-
 }
 
-QByteArray &&FileModifier::xOR(QByteArray &&fileDataBuf)
+QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray &&fileDataBuf)
 {
-    return nullptr;
+    QByteArray::iterator itr=fileDataBuf.begin();
+    qDebug() << itr;
+
+    //for(QByteArray::iterator itr=fileDataBuf.begin(); itr!=fileDataBuf.end();itr++)
+    //{
+    //    qDebug() << itr;
+    //}
+    //return nullptr;
 }
 
-QByteArray &&FileModifier::modMethodSecond(QByteArray &&fileDataBuf)
-{
-
-}
-
-QByteArray &&FileModifier::modMethodThird(QByteArray &&fileDataBuf)
-{
-
-}
-
-QByteArray &&FileModifier::modMethodFourth(QByteArray &&fileDataBuf)
+QByteArray &&FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
 {
 
 }
 
-QByteArray &&FileModifier::modMethodFifth(QByteArray &&fileDataBuf)
+QByteArray &&FileModifier::modMethodThird(quint64 enKey, QByteArray &&fileDataBuf)
 {
 
 }
 
-void FileModifier::setUpSettings(QString fileMask, const bool deleteImputFile, const QString& foolder,
-                                 const bool ActionsRepeatingFile, const unsigned long FrequencyCheckingFiles,
+QByteArray &&FileModifier::modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf)
+{
+
+}
+
+QByteArray &&FileModifier::modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf)
+{
+
+}
+
+void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString& foolder,
+                                 const bool actionsRepeatingFile, const unsigned long frequencyCheckingFiles,
                                  const unsigned short FileModMethods)
 {
     this->fileMask = fileMask;
     this->deleteImputFile = deleteImputFile;
     this->foolder = foolder;
-    this->ActionsRepeatingFile = ActionsRepeatingFile;
-    this->FrequencyCheckingFiles = FrequencyCheckingFiles;
-    this->FileModMethods = FileModMethods;
-
+    this->actionsRepeatingFile = actionsRepeatingFile;
+    this->frequencyCheckingFiles = frequencyCheckingFiles;
+    this->enencryptionKey = enencryptionKey;
 
     switch (FileModMethods) {
     case 0:
         methodFileModPtr = xOR;
         break;
-    case 1:
-        methodFileModPtr = modMethodSecond;
-        break;
-    case 2:
-        methodFileModPtr = modMethodThird;
-        break;
-    case 3:
-        methodFileModPtr = modMethodFourth;
-        break;
-    case 4:
-        methodFileModPtr = modMethodFifth;
-        break;
+    //case 1:
+    //    methodFileModPtr = modMethodSecond;
+    //    break;
+    //case 2:
+    //    methodFileModPtr = modMethodThird;
+    //    break;
+    //case 3:
+    //    methodFileModPtr = modMethodFourth;
+    //    break;
+    //case 4:
+    //    methodFileModPtr = modMethodFifth;
+    //    break;
     default:
         //Здесь можно бросить исключение
         break;
     }
 
-    openAndModify(lookFiles(this->foolder, this->fileMask), this->FileModMethods);
+    openAndModify(lookFiles(this->foolder, this->fileMask), methodFileModPtr, this->enencryptionKey);
 }
 

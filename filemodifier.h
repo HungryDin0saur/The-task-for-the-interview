@@ -19,11 +19,11 @@ public:
     ~FileModifier();
 
     QString fileMask;
-    bool deleteImputFile;
+    bool deleteImputFile = false;
     QString foolder;
-    bool ActionsRepeatingFile;
-    unsigned long int FrequencyCheckingFiles;
-    unsigned short int FileModMethods;
+    bool actionsRepeatingFile = true;
+    unsigned long int frequencyCheckingFiles = 0;
+    QString enencryptionKey;
 
 private:
     QFile* file;
@@ -32,20 +32,23 @@ private:
     std::stack<QString> fileList;
 
     const std::stack<QString>& lookFiles(const QString folder, QString fileFilters);
-    void openAndModify(std::stack<QString> fileList, std::function<QByteArray&&(QByteArray&&)> methodFileModPtr);
 
-    static QByteArray&& xOR(QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodSecond(QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodThird(QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodFourth(QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodFifth(QByteArray &&fileDataBuf);
+     //Это не потоко безопасно, зато быстро :)
+    static QByteArray&& xOR(quint64 enKey, QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodThird(quint64 enKey, QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf);
+    static QByteArray&& modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf);
 
-    std::function<QByteArray&&(QByteArray&&)> methodFileModPtr = nullptr;
+    std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr = nullptr;
 
 public slots:
-    void setUpSettings(QString fileMask, const bool deleteImputFile, const QString &foolder,
-                       const bool ActionsRepeatingFile, const unsigned long int FrequencyCheckingFiles,
+    void setUpSettings(QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString &foolder,
+                       const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
                        const unsigned short int FileModMethods);
+
+    void openAndModify(std::stack<QString> fileList, std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr,
+                       QString enencryptionKey);
 
 signals:
 

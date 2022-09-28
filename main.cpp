@@ -9,6 +9,8 @@
 
 int main(int argc, char *argv[])
 {
+    //static_assert(sizeof(unsigned long long int) == 8, "You are using a bad OS");
+
     QGuiApplication app(argc, argv);
 
     QTranslator translator;
