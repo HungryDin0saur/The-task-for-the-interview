@@ -34,14 +34,16 @@ private:
 
     const std::stack<QString>& lookFiles(const QString folder, QString fileFilters);
 
-     //Это не потоко безопасно, зато быстро :)
-    static QByteArray&& xOR(quint64 enKey, QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodThird(quint64 enKey, QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf);
-    static QByteArray&& modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf);
+     //QByteArray&& не потоко безопасно, зато быстро :)
+    static QByteArray&& xOR(quint64 enKey, QByteArray&& fileDataBuf);
+    static QByteArray&& modMethodSecond(quint64 enKey, QByteArray&& fileDataBuf);
+    static QByteArray&& modMethodThird(quint64 enKey, QByteArray&& fileDataBuf);
+    static QByteArray&& modMethodFourth(quint64 enKey, QByteArray&& fileDataBuf);
+    static QByteArray&& modMethodFifth(quint64 enKey, QByteArray&& fileDataBuf);
 
     std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr = nullptr;
+
+    static void writeFile(QByteArray &&fileDataBuf, QString filePath);
 
 public slots:
     void setUpSettings(QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString &foolder,
@@ -49,8 +51,7 @@ public slots:
                        const unsigned short int FileModMethods);
 
     void openAndModify(std::stack<QString> fileList, std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr,
-                       QString enencryptionKey);
-
+                       QString enencryptionKey);    
 signals:
 
 };

@@ -90,6 +90,7 @@ Window {
             SpinBox {
                 id: frequencyTime
                 Layout.alignment: Qt.AlignLeft
+                to:10
             }
         }
 

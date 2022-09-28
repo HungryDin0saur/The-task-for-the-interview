@@ -1,16 +1,10 @@
 #include "filemodifier.h"
 
-//while(!fileList.empty())
-//{
-//    file->open(QFile::ReadOnly); fileList.top();
-//    fileList.pop();
-//}
-
 FileModifier::FileModifier(QObject *parent)
     : QObject{parent}
 {
-    file = new QFile;
-    dir = new QDir;
+    this->file = new QFile;
+    this->dir = new QDir;
 }
 
 FileModifier::~FileModifier()
@@ -47,7 +41,7 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
         if(this->file->open(QFile::ReadWrite))
         {
             fileDataBuf = std::move(this->file->readAll());
-            methodFileModPtr(enKey, std::move(fileDataBuf));
+            writeFile(methodFileModPtr(enKey, std::move(fileDataBuf)), fileList.top());
         }
         else{
             //Кунуть исключени
@@ -58,42 +52,44 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
     }
 }
 
+void FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath)
+{
+    QFile *file = new QFile;
+    file->setFileName(filePath);
+    if(file->open(QFile::WriteOnly))
+    {
+       file->write(fileDataBuf);
+    }
+    else{
+        //Кунуть исключени
+    }
+    delete file;
+}
+
 QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray &&fileDataBuf)
 {
     QBitArray bitsToHex(64);
     bitsToHex.fill(0, 64);
 
+    short int i=0;
+    for(auto itrBytes: fileDataBuf)
+    {
+        do {
+            if( i == 64)
+            {
+                i = 0; qDebug() << "RETURN";
+                //ПОХЕКСИТЬ
 
-    bitsToHex.setBit(63, 1);
+                //ПОХЕКСИТЬ
+                bitsToHex.fill(0, 64);
+            }
+            bitsToHex.setBit(i, itrBytes&(1<<(i%8))); qDebug() <<  bitsToHex << " at: " << bitsToHex.at(i) << " " << i << " " << itrBytes;
+            i++;
+        }
+        while ((i % 8) != 0);
+    }
 
-
-    //short int i=0;
-    //for(auto itrBytes: fileDataBuf)
-    //{
-    //    do {
-    //        if( i == 64)
-    //        {
-    //            i = 0; qDebug() << "RETURN";
-    //            //ПОХЕКСИТЬ
-    //            bitsToHex.fill(0, 64);
-    //        }
-    //        bitsToHex.setBit(i, itrBytes&(1<<i)); qDebug() << bitsToHex << " " << i << " " << itrBytes;
-    //        i++;
-    //    }
-    //    while ((i % 8) != 0);
-
-    //}
-
-    //for(int i=0; i<bytes.count(); ++i)
-    //    for(int b=0; b<8; ++b)
-    //        bitsToHex.setBit(i*8+b, bytes.at(i)&(1<<b));
-
-    ////for(QByteArray::iterator itr=fileDataBuf.begin(); itr!=fileDataBuf.end();itr++)
-    //{
-    //    // Convert from QByteArray to QBitArray
-    //
-    //}
-    return nullptr;
+    return std::move(fileDataBuf);
 }
 
 QByteArray &&FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
@@ -131,18 +127,18 @@ void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, cons
     case 0:
         methodFileModPtr = xOR;
         break;
-    //case 1:
-    //    methodFileModPtr = modMethodSecond;
-    //    break;
-    //case 2:
-    //    methodFileModPtr = modMethodThird;
-    //    break;
-    //case 3:
-    //    methodFileModPtr = modMethodFourth;
-    //    break;
-    //case 4:
-    //    methodFileModPtr = modMethodFifth;
-    //    break;
+    case 1:
+        methodFileModPtr = modMethodSecond;
+        break;
+    case 2:
+        methodFileModPtr = modMethodThird;
+        break;
+    case 3:
+        methodFileModPtr = modMethodFourth;
+        break;
+    case 4:
+        methodFileModPtr = modMethodFifth;
+        break;
     default:
         //Здесь можно бросить исключение
         break;
