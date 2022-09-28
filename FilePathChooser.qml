@@ -3,8 +3,7 @@ import QtQuick.Dialogs
 
 
 FolderDialog {
-
     onAccepted: {
-       console.log(currentFolder)
+       folderInput.text = currentFolder
     }
 }

@@ -34,6 +34,7 @@ Window {
         }
 
         CheckBox {
+            id: checkDelInputFile
             Layout.alignment: Qt.AlignLeft
             text: qsTr("Delete input file")
         }
@@ -42,6 +43,7 @@ Window {
             Layout.alignment: Qt.AlignLeft
 
             TextField {
+                id: folderInput
                 Layout.minimumWidth: textFieldMinimumWidth
                 Layout.alignment: Qt.AlignLeft
                 placeholderText: "Enter the path to the input files"
@@ -62,6 +64,7 @@ Window {
             }
 
             RadioButton {
+                id: overwriteFilesCheck
                 checked: true
                 text: qsTr("Overwrite files")
             }
@@ -77,6 +80,7 @@ Window {
             }
 
             SpinBox {
+                id: frequencyTime
                 Layout.alignment: Qt.AlignLeft
             }
         }
@@ -88,22 +92,31 @@ Window {
             Label {
                 text: qsTr("File modification methods: ")
             }
-
+            ButtonGroup { id: rBgModeroup }
             RadioButton {
                 checked: true
                 text: qsTr("XOR")
+                ButtonGroup.group: rBgModeroup
             }
             RadioButton {
+                id: rb1
                 text: qsTr("empty")
+                ButtonGroup.group: rBgModeroup
             }
             RadioButton {
+                id: rb2
                 text: qsTr("empty")
+                ButtonGroup.group: rBgModeroup
             }
             RadioButton {
+                id: rb3
                 text: qsTr("empty")
+                ButtonGroup.group: rBgModeroup
             }
             RadioButton {
+                id: rb4
                 text: qsTr("empty")
+                ButtonGroup.group: rBgModeroup
             }
         }
 
@@ -118,7 +131,8 @@ Window {
         text: qsTr("Set up settings")
 
         onClicked: {
-            //setUpSettings();
+            setUpSettings(maskInputFiles.text, checkDelInputFile.checked, folderInput.text, overwriteFilesCheck.checked,
+                          frequencyTime.value, 0);
         }
     }
 

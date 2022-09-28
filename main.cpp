@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
 
-    FileModifier fileModifier;
-    engine.rootContext()->setContextObject(&fileModifier);
+    FileModifier *fileModifier = new FileModifier;
+    engine.rootContext()->setContextObject(fileModifier);
 
     engine.load(url);
 
