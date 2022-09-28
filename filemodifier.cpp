@@ -1,5 +1,11 @@
 #include "filemodifier.h"
 
+//while(!fileList.empty())
+//{
+//    file->open(QFile::ReadOnly); fileList.top();
+//    fileList.pop();
+//}
+
 FileModifier::FileModifier(QObject *parent)
     : QObject{parent}
 {
@@ -9,57 +15,64 @@ FileModifier::FileModifier(QObject *parent)
 
 FileModifier::~FileModifier()
 {
+    fileDataBuf.clear();
+
     delete file;
     delete dir;
 }
 
-const QFile* FileModifier::openFiles(QString folder, QStringList fileFilters, QFile* file = nullptr)
+const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString fileFilters)
 {
     dir->setPath(foolder.remove(0, 8) + '/');
-    dir->entryInfoList(fileFilters);
-    QDirIterator dirIter(dir->path());
-
+    QDirIterator dirIter(dir->path(), dir->entryList(QStringList(fileFilters)));
 
     while (dirIter.hasNext())
     {
-        fileList.emplace(dirIter.next());
+        this->fileList.emplace(dirIter.next());
     }
 
+    return this->fileList;
+}
+
+void FileModifier::openAndModify(std::stack<QString> fileList, const unsigned short FileModMethods)
+{
     while(!fileList.empty())
     {
-        qDebug() << fileList.top();
+        this->file->setFileName(fileList.top());
+        if(this->file->open(QFile::ReadWrite))
+        {
+            fileDataBuf = std::move(this->file->readAll());
+            qDebug() << fileDataBuf.size();
+        }
+        else{
+            //Кунуть исключени
+        }
+
         fileList.pop();
     }
 
 
-    //dir->setPath(foolder.remove(0, 8) + '/');
-    //QFileInfoList list = dir->entryInfoList(QStringList(), QDir::Files);
+    //switch (FileModMethods) {
+    //case value:
 
-    //
-    //quint64 s = list.size();
-    //for(quint64 i=0;i<s;i++)
-    //{
-    //    qDebug() << list.at(i).fileName();
+    //    break;
+    //default:
+    //    break;
     //}
 
-
-
-    //file-
-    //file->open(QFile::ReadOnly);
-    return file;
 }
 
 
-void FileModifier::setUpSettings(const QList<QString>&& fileMask, const bool deleteImputFile, const QString& foolder,
+void FileModifier::setUpSettings(QString fileMask, const bool deleteImputFile, const QString& foolder,
                                  const bool ActionsRepeatingFile, const unsigned long FrequencyCheckingFiles,
                                  const unsigned short FileModMethods)
 {
-    this->fileMask.swap(fileMask);
+    this->fileMask = fileMask;
     this->deleteImputFile = deleteImputFile;
     this->foolder = foolder;
     this->ActionsRepeatingFile = ActionsRepeatingFile;
     this->FrequencyCheckingFiles = FrequencyCheckingFiles;
     this->FileModMethods = FileModMethods;
 
-    FileModifier::openFiles(this->foolder, this->fileMask, this->file);
+    openAndModify(lookFiles(this->foolder, this->fileMask), this->FileModMethods);
 }

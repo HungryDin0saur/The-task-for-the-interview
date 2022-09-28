@@ -122,19 +122,25 @@ Window {
 
     }
 
-    Button {
-        width: butttonMinimumWidth
+    RowLayout {
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         anchors.bottomMargin: parent.height / 30
         anchors.rightMargin: parent.width / 30
-        text: qsTr("Set up settings")
 
-        onClicked: {
-            setUpSettings(maskInputFiles.text, checkDelInputFile.checked, folderInput.text, overwriteFilesCheck.checked,
-                          frequencyTime.value, 0);
+        Button {
+            width: butttonMinimumWidth
+            Layout.alignment: Qt.AlignLeft
+            text: qsTr("Set up settings and start")
+
+            onClicked: {
+                setUpSettings(maskInputFiles.text, checkDelInputFile.checked, folderInput.text, overwriteFilesCheck.checked,
+                              frequencyTime.value, 0);
+            }
         }
     }
+
+
 
 
     FilePathChooser{

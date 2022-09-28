@@ -17,7 +17,7 @@ public:
     explicit FileModifier(QObject *parent = nullptr);
     ~FileModifier();
 
-    QStringList fileMask;
+    QString fileMask;
     bool deleteImputFile;
     QString foolder;
     bool ActionsRepeatingFile;
@@ -27,12 +27,14 @@ public:
 private:
     QFile* file;
     QDir* dir;
+    QByteArray fileDataBuf;
     std::stack<QString> fileList;
 
-    const QFile* openFiles(const QString folder, QStringList fileFilters, QFile* file);
+    const std::stack<QString>& lookFiles(const QString folder, QString fileFilters);
+    void openAndModify(std::stack<QString> fileList, const unsigned short int FileModMethods);
 
 public slots:
-    void setUpSettings(const QList<QString> &&fileMask, const bool deleteImputFile, const QString &foolder,
+    void setUpSettings(QString fileMask, const bool deleteImputFile, const QString &foolder,
                        const bool ActionsRepeatingFile, const unsigned long int FrequencyCheckingFiles,
                        const unsigned short int FileModMethods);
 
