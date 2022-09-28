@@ -61,28 +61,28 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray &&fileDataBuf)
 {
     QBitArray bitsToHex(64);
+    bitsToHex.fill(0, 64);
 
-    short int i=0;
-    for(auto itrBytes: fileDataBuf)
-    {
-        while(i<64)
-        {
-            bitsToHex.setBit(i, itrBytes&(1<<i));
-            i++;
-            if(i == ((64 % 8) - 1))
-            {
-              qDebug() << i;
-                if(i == 63)
-                {
-                   i = 0;
-                }
-                break;
-            }
-        }
-            break; //временно
-    }
 
-    qDebug() << "TEST: " << bitsToHex;
+    bitsToHex.setBit(63, 1);
+
+
+    //short int i=0;
+    //for(auto itrBytes: fileDataBuf)
+    //{
+    //    do {
+    //        if( i == 64)
+    //        {
+    //            i = 0; qDebug() << "RETURN";
+    //            //ПОХЕКСИТЬ
+    //            bitsToHex.fill(0, 64);
+    //        }
+    //        bitsToHex.setBit(i, itrBytes&(1<<i)); qDebug() << bitsToHex << " " << i << " " << itrBytes;
+    //        i++;
+    //    }
+    //    while ((i % 8) != 0);
+
+    //}
 
     //for(int i=0; i<bytes.count(); ++i)
     //    for(int b=0; b<8; ++b)
