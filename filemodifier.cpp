@@ -54,19 +54,46 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
         }
 
         fileList.pop();
+        this->file->close();
     }
 }
 
 QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray &&fileDataBuf)
 {
-    QByteArray::iterator itr=fileDataBuf.begin();
-    qDebug() << itr;
+    QBitArray bitsToHex(64);
 
-    //for(QByteArray::iterator itr=fileDataBuf.begin(); itr!=fileDataBuf.end();itr++)
+    short int i=0;
+    for(auto itrBytes: fileDataBuf)
+    {
+        while(i<64)
+        {
+            bitsToHex.setBit(i, itrBytes&(1<<i));
+            i++;
+            if(i == ((64 % 8) - 1))
+            {
+              qDebug() << i;
+                if(i == 63)
+                {
+                   i = 0;
+                }
+                break;
+            }
+        }
+            break; //временно
+    }
+
+    qDebug() << "TEST: " << bitsToHex;
+
+    //for(int i=0; i<bytes.count(); ++i)
+    //    for(int b=0; b<8; ++b)
+    //        bitsToHex.setBit(i*8+b, bytes.at(i)&(1<<b));
+
+    ////for(QByteArray::iterator itr=fileDataBuf.begin(); itr!=fileDataBuf.end();itr++)
     //{
-    //    qDebug() << itr;
+    //    // Convert from QByteArray to QBitArray
+    //
     //}
-    //return nullptr;
+    return nullptr;
 }
 
 QByteArray &&FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)

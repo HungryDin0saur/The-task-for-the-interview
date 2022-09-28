@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDir>
 #include <QDirIterator>
+#include <QBitArray>
 
 #include <stack>
 #include <functional>
