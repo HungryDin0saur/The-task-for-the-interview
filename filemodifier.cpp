@@ -72,18 +72,20 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
    {
        bitsEnKey.setBit(((((i+1) * 64) - 1) % 65), enKey&(1ull<<i));
    }
-
+qDebug() << "Variable xor: " << bitsEnKey;
    QBitArray bitsXor(64, 0);
 
    unsigned int i = 0;
    for(auto itrBytes: fileDataBuf)
    {
        do {
-           if( i == 64)
+           bitsXor.setBit((((i * 7) - 1) % 8) + (i - (i % 8)), itrBytes&(1<<(i%8)));
+
+           if((i++) == 64)
            {
                i = 0;
 
-               bitsXor ^= bitsEnKey;
+               bitsXor ^= bitsEnKey;     qDebug() << "Res xor: " << bitsXor;
 /*
                QByteArray bytes;
                    bytes.resize(bits.count()/8+1);
@@ -92,15 +94,14 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
                    for(int b=0; b<bits.count(); ++b)
                        bytes[b/8] = ( bytes.at(b/8) | ((bits[b]?1:0)<<(b%8)));
                    return bytes;
-/*
+*/
 
 
                bitsXor.fill(0, 64);
            }
-           bitsXor.setBit((((i * 7) - 1) % 8) + (i - (i % 8)), itrBytes&(1<<(i%8)));
-           i++;
        }
        while ((i % 8) != 0);
+qDebug() << "Bit mass: " << bitsXor;
    }
 
    return std::move(fileDataBuf);
