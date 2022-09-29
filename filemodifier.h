@@ -27,7 +27,7 @@ public:
     QString enencryptionKey;
 
 private:
-    static QFile* file;
+    QFile* file;
     QDir* dir;
     QByteArray fileDataBuf;
     std::stack<QString> fileList;
@@ -43,7 +43,7 @@ private:
 
     std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr = nullptr;
 
-    static void writeFile(QByteArray &&fileDataBuf, QString filePath);
+    void writeFile(QByteArray &&fileDataBuf, QString filePath);
 
 public slots:
     void setUpSettings(QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString &foolder,

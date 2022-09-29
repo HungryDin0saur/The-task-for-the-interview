@@ -1,7 +1,5 @@
 #include "filemodifier.h"
 
-QFile* FileModifier::file = new QFile;
-
 FileModifier::FileModifier(QObject *parent)
     : QObject{parent}
 {
@@ -15,7 +13,7 @@ FileModifier::~FileModifier()
 
     methodFileModPtr = nullptr;
 
-    delete FileModifier::file;
+    delete file;
     delete dir;
 }
 
@@ -40,8 +38,8 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 
     while(!fileList.empty())
     {
-        FileModifier::file->setFileName(fileList.top());
-        if(FileModifier::file->open(QFile::ReadWrite))
+        file->setFileName(fileList.top());
+        if(file->open(QFile::ReadWrite))
         {
             fileDataBuf = std::move(FileModifier::file->readAll());
             writeFile(methodFileModPtr(enKey, std::move(fileDataBuf)), fileList.top());
@@ -57,48 +55,53 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 
 void FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath)
 {
-    FileModifier::file->setFileName(filePath);
-    if(FileModifier::file->open(QFile::WriteOnly))
+    file->setFileName(filePath);
+    if(file->open(QFile::WriteOnly))
     {
-       qDebug() << FileModifier::file->write(fileDataBuf);
+       file->write(fileDataBuf);
     }
     else{
         //Кунуть исключени
     }
 }
 
-QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
 {
-    QBitArray bitsEnKey(64, 0);
-    for(short int i = 0; i < 64; i++)
-    {
-        bitsEnKey.setBit(i, enKey&(1<<i));
-    }
+   QBitArray bitsEnKey(64, 0);
+   for(short int i = 0; i < 64; i++)
+   {
+       bitsEnKey.setBit(i, enKey&(1ull<<i));
+   }
 
-    QBitArray bitsToHex(64, 0);
+   QBitArray bitsXor(64, 0);
 
-    short int i = 0;
-    for(auto itrBytes: fileDataBuf)
-    {
-        do {
-            if( i == 64)
-            {
-                i = 0;
-                //ПОКСОРИТЬ
-
-                //bitsToHex ^ enKey;
+   short int i = 0;
+   for(auto itrBytes: fileDataBuf)
+   {
+       do {
+           if( i == 64)
+           {
+               i = 0;
+               //ПОКСОРИТЬ
 
 
-                //ПОКСОРИТЬ
-                bitsToHex.fill(0, 64);
-            }
-            bitsToHex.setBit(i, itrBytes&(1<<(i%8)));
-            i++;
-        }
-        while ((i % 8) != 0);
-    }
 
-    return std::move(fileDataBuf);
+               bitsXor ^= bitsEnKey;
+
+
+
+
+               //ПОКСОРИТЬ
+               bitsXor.fill(0, 64);
+           }
+           bitsXor.setBit(((((i+1) * 64) - 1) % 65), itrBytes&(1<<(i%8)));
+           i++;
+       }
+       while ((i % 8) != 0);
+       qDebug() << bitsXor;
+   }
+
+   return std::move(fileDataBuf);
 }
 
 QByteArray &&FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
