@@ -1,5 +1,7 @@
 #include "filemodifier.h"
 
+QFile* FileModifier::file = new QFile;
+
 FileModifier::FileModifier(QObject *parent)
     : QObject{parent}
 {
@@ -13,7 +15,7 @@ FileModifier::~FileModifier()
 
     methodFileModPtr = nullptr;
 
-    delete file;
+    delete FileModifier::file;
     delete dir;
 }
 
@@ -33,14 +35,15 @@ const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString
 void FileModifier::openAndModify(std::stack<QString> fileList,
                                  std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
 {
-    quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
+    //quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
+    quint64 enKey = enencryptionKey.toLongLong(); //18446744073709551615 - max, добавить проверку
 
     while(!fileList.empty())
     {
-        this->file->setFileName(fileList.top());
-        if(this->file->open(QFile::ReadWrite))
+        FileModifier::file->setFileName(fileList.top());
+        if(FileModifier::file->open(QFile::ReadWrite))
         {
-            fileDataBuf = std::move(this->file->readAll());
+            fileDataBuf = std::move(FileModifier::file->readAll());
             writeFile(methodFileModPtr(enKey, std::move(fileDataBuf)), fileList.top());
         }
         else{
@@ -48,42 +51,48 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
         }
 
         fileList.pop();
-        this->file->close();
+        FileModifier::file->close();
     }
 }
 
 void FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath)
 {
-    QFile *file = new QFile;
-    file->setFileName(filePath);
-    if(file->open(QFile::WriteOnly))
+    FileModifier::file->setFileName(filePath);
+    if(FileModifier::file->open(QFile::WriteOnly))
     {
-       file->write(fileDataBuf);
+       qDebug() << FileModifier::file->write(fileDataBuf);
     }
     else{
         //Кунуть исключени
     }
-    delete file;
 }
 
 QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray &&fileDataBuf)
 {
-    QBitArray bitsToHex(64);
-    bitsToHex.fill(0, 64);
+    QBitArray bitsEnKey(64, 0);
+    for(short int i = 0; i < 64; i++)
+    {
+        bitsEnKey.setBit(i, enKey&(1<<i));
+    }
 
-    short int i=0;
+    QBitArray bitsToHex(64, 0);
+
+    short int i = 0;
     for(auto itrBytes: fileDataBuf)
     {
         do {
             if( i == 64)
             {
-                i = 0; qDebug() << "RETURN";
-                //ПОХЕКСИТЬ
+                i = 0;
+                //ПОКСОРИТЬ
 
-                //ПОХЕКСИТЬ
+                //bitsToHex ^ enKey;
+
+
+                //ПОКСОРИТЬ
                 bitsToHex.fill(0, 64);
             }
-            bitsToHex.setBit(i, itrBytes&(1<<(i%8))); qDebug() <<  bitsToHex << " at: " << bitsToHex.at(i) << " " << i << " " << itrBytes;
+            bitsToHex.setBit(i, itrBytes&(1<<(i%8)));
             i++;
         }
         while ((i % 8) != 0);
