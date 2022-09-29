@@ -70,28 +70,31 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
    QBitArray bitsEnKey(64, 0);
    for(short int i = 0; i < 64; i++)
    {
-       bitsEnKey.setBit(i, enKey&(1ull<<i));
+       bitsEnKey.setBit(((((i+1) * 64) - 1) % 65), enKey&(1ull<<i));
    }
 
    QBitArray bitsXor(64, 0);
 
-   short int i = 0;
+   unsigned int i = 0;
    for(auto itrBytes: fileDataBuf)
    {
        do {
            if( i == 64)
            {
                i = 0;
-               //ПОКСОРИТЬ
-
-
 
                bitsXor ^= bitsEnKey;
+/*
+               QByteArray bytes;
+                   bytes.resize(bits.count()/8+1);
+                   bytes.fill(0);
+                   // Convert from QBitArray to QByteArray
+                   for(int b=0; b<bits.count(); ++b)
+                       bytes[b/8] = ( bytes.at(b/8) | ((bits[b]?1:0)<<(b%8)));
+                   return bytes;
+/*
 
 
-
-
-               //ПОКСОРИТЬ
                bitsXor.fill(0, 64);
            }
            bitsXor.setBit((((i * 7) - 1) % 8) + (i - (i % 8)), itrBytes&(1<<(i%8)));
