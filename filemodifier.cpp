@@ -94,11 +94,10 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
                //ПОКСОРИТЬ
                bitsXor.fill(0, 64);
            }
-           bitsXor.setBit(((((i+1) * 64) - 1) % 65), itrBytes&(1<<(i%8)));
+           bitsXor.setBit((((i * 7) - 1) % 8) + (i - (i % 8)), itrBytes&(1<<(i%8)));
            i++;
        }
        while ((i % 8) != 0);
-       qDebug() << bitsXor;
    }
 
    return std::move(fileDataBuf);
