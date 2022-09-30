@@ -67,10 +67,26 @@ void FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath)
 
 QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
 {
+/*
+ *  Так нельзя, потому что мне было необходимо беззнаковой представление
+    QBitArray bitsToXor;
+    QByteArray fileDataBuf;
+    fileDataBuf.push_back('v');
+    fileDataBuf.push_back('e');
+    fileDataBuf.push_back('N');
+    fileDataBuf.push_back('m');
+    fileDataBuf.push_back('v');
+    fileDataBuf.push_back('F');
+    fileDataBuf.push_back('R');
+    fileDataBuf.push_back('o');
+
+    bitsToXor = QBitArray::fromBits(fileDataBuf.constData(), 8);
+    qDebug() << bitsToXor;
+*/
    QBitArray bitsEnKey(64, 0);
    for(short int i = 0; i < 64; i++)
    {
-       bitsEnKey.setBit(((((i+1) * 64) - 1) % 65), enKey&(1ull<<i));
+       bitsEnKey.setBit(i, enKey&(1ull<<i)); //((((i+1) * 64) - 1) % 65)
    }
 
    QBitArray bitsToXor(64, 0);
@@ -79,7 +95,7 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
    for(auto itrBytes: fileDataBuf)
    {
        do {
-           bitsToXor.setBit((((i * 7) - 1) % 8) + (i - (i % 8)), itrBytes&(1<<(i%8)));
+           bitsToXor.setBit(i, itrBytes&(1ull<<(i%8))); //(((i * 7) - 1) % 8) + (i - (i % 8))
 
            if((++i) == 64)
            {
@@ -91,12 +107,7 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
                //qDebug() << "Res xor: " << bitsToXor;
 
 
-                   fileDataBuf.resize(bits.count()/8+1);
-                   fileDataBuf.fill(0);
-                   // Convert from QBitArray to QByteArray
-                   for(int b=0; b<bits.count(); ++b)
-                       fileDataBuf[b/8] = ( fileDataBuf.at(b/8) | ((bits[b]?1:0)<<(b%8)));
-
+                //fileDataBuf
 
 
                bitsToXor.fill(0, 64);
