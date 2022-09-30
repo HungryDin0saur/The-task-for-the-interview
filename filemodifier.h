@@ -31,27 +31,28 @@ private:
     QDir* dir;
     QByteArray fileDataBuf;
     std::stack<QString> fileList;
+    QByteArray outBytes;
 
     const std::stack<QString>& lookFiles(const QString folder, QString fileFilters);
 
      //QByteArray&& не потоко безопасно, зато быстро :)
-    static QByteArray&& xOR(quint64 enKey, QByteArray&& fileDataBuf);
-    static QByteArray&& modMethodSecond(quint64 enKey, QByteArray&& fileDataBuf);
-    static QByteArray&& modMethodThird(quint64 enKey, QByteArray&& fileDataBuf);
-    static QByteArray&& modMethodFourth(quint64 enKey, QByteArray&& fileDataBuf);
-    static QByteArray&& modMethodFifth(quint64 enKey, QByteArray&& fileDataBuf);
-    std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr = nullptr;
+    static QByteArray&& xOR(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray &&outBytes);
+    static QByteArray&& modMethodSecond(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray &&outBytes);
+    static QByteArray&& modMethodThird(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray &&outBytes);
+    static QByteArray&& modMethodFourth(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray &&outBytes);
+    static QByteArray&& modMethodFifth(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray &&outBytes);
+    std::function<QByteArray&& (const quint64, QByteArray&&, QByteArray&&)> methodFileModPtr = nullptr;
 
     static QByteArray toQByteFromeQBit(QBitArray &&bits);
 
-    void writeFile(QByteArray &&fileDataBuf, QString filePath);
+    void writeFile(QByteArray&& fileDataBuf, QString filePath);
 
 public slots:
     void setUpSettings(QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString &foolder,
                        const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
                        const unsigned short int FileModMethods);
 
-    void openAndModify(std::stack<QString> fileList, std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr,
+    void openAndModify(std::stack<QString> fileList, std::function<QByteArray&& (quint64, QByteArray&&, QByteArray&&)> methodFileModPtr,
                        QString enencryptionKey);    
 signals:
 

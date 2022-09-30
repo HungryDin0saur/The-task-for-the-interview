@@ -31,7 +31,7 @@ const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString
 }
 
 void FileModifier::openAndModify(std::stack<QString> fileList,
-                                 std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
+                                 std::function<QByteArray&& (quint64, QByteArray&&, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
 {
     //quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
     quint64 enKey = enencryptionKey.toLongLong(); //18446744073709551615 - max, добавить проверку
@@ -42,7 +42,7 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
         if(file->open(QFile::ReadWrite))
         {
             fileDataBuf = std::move(FileModifier::file->readAll());
-            writeFile(methodFileModPtr(enKey, std::move(fileDataBuf)), fileList.top());
+            writeFile(methodFileModPtr(enKey, std::move(fileDataBuf), std::move(outBytes)), fileList.top());
         }
         else{
             //Кунуть исключени
@@ -58,14 +58,14 @@ void FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath)
     file->setFileName(filePath);
     if(file->open(QFile::WriteOnly))
     {
-       file->write(fileDataBuf);
+      qDebug() << file->write(fileDataBuf);
     }
     else{
         //Кунуть исключени
     }
 }
 
-QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
+QByteArray &&FileModifier::xOR(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray&& outBytes)
 {
 /*
  *  Так нельзя, потому что мне было необходимо беззнаковой представление
@@ -83,7 +83,6 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
     bitsToXor = QBitArray::fromBits(fileDataBuf.constData(), 8);
     qDebug() << bitsToXor;
 */
-   QByteArray bufBytes;
 
    QBitArray bitsEnKey(64, 0);
    for(short int i = 0; i < 64; i++)
@@ -109,11 +108,11 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
                //qDebug() << "Variable xor: " << bitsEnKey;
                //qDebug() << "Res xor: " << bitsToXor;
 
+               outBytes.append(toQByteFromeQBit(std::move(bitsToXor)));
 
-                //fileDataBuf
+               //fileDataBuf.replace(i, itrBytes, bufBytes);
 
-               bufBytes = toQByteFromeQBit(std::move(bitsToXor));
-               qDebug() << bufBytes;
+               qDebug() << outBytes;
 
 
                bitsToXor.fill(0, 64);
@@ -122,25 +121,25 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
        while ((i % 8) != 0);
    }
 
-   return std::move(fileDataBuf);
+   return std::move(outBytes);
 }
 
-QByteArray&& FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodSecond(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray&& FileModifier::modMethodThird(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodThird(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray&& FileModifier::modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodFourth(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray&& FileModifier::modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodFifth(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
