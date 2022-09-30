@@ -85,19 +85,18 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
            {
                i = 0;
 
-               bitsToXor ^= bitsEnKey;
-               qDebug() << "Bit mass: " << bitsToXor;
-               qDebug() << "Variable xor: " << bitsEnKey;
-               qDebug() << "Res xor: " << bitsToXor;
-/*
-               QByteArray bytes;
-                   bytes.resize(bits.count()/8+1);
-                   bytes.fill(0);
+               //bitsToXor ^= bitsEnKey;
+               //qDebug() << "Bit mass: " << bitsToXor;
+               //qDebug() << "Variable xor: " << bitsEnKey;
+               //qDebug() << "Res xor: " << bitsToXor;
+
+
+                   fileDataBuf.resize(bits.count()/8+1);
+                   fileDataBuf.fill(0);
                    // Convert from QBitArray to QByteArray
                    for(int b=0; b<bits.count(); ++b)
-                       bytes[b/8] = ( bytes.at(b/8) | ((bits[b]?1:0)<<(b%8)));
-                   return bytes;
-*/
+                       fileDataBuf[b/8] = ( fileDataBuf.at(b/8) | ((bits[b]?1:0)<<(b%8)));
+
 
 
                bitsToXor.fill(0, 64);
@@ -111,22 +110,22 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
 
 QByteArray &&FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
 {
-
+    return std::move(fileDataBuf);
 }
 
 QByteArray &&FileModifier::modMethodThird(quint64 enKey, QByteArray &&fileDataBuf)
 {
-
+    return std::move(fileDataBuf);
 }
 
 QByteArray &&FileModifier::modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf)
 {
-
+    return std::move(fileDataBuf);
 }
 
 QByteArray &&FileModifier::modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf)
 {
-
+    return std::move(fileDataBuf);
 }
 
 void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString& foolder,
