@@ -83,6 +83,8 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
     bitsToXor = QBitArray::fromBits(fileDataBuf.constData(), 8);
     qDebug() << bitsToXor;
 */
+   QByteArray bufBytes;
+
    QBitArray bitsEnKey(64, 0);
    for(short int i = 0; i < 64; i++)
    {
@@ -97,7 +99,7 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
        do {
            bitsToXor.setBit(i, itrBytes&(1ull<<(i%8))); //(((i * 7) - 1) % 8) + (i - (i % 8))
 
-           if((++i) == 64)
+           if(((++i) == 64) || 1)
            {
                i = 0;
 
@@ -109,6 +111,9 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
 
                 //fileDataBuf
 
+               bufBytes = toQByteFromeQBit(std::move(bitsToXor));
+               qDebug() << itrBytes << " " << bufBytes;
+
 
                bitsToXor.fill(0, 64);
            }
@@ -119,24 +124,58 @@ QByteArray &&FileModifier::xOR(quint64 enKey, QByteArray&& fileDataBuf)
    return std::move(fileDataBuf);
 }
 
-QByteArray &&FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodSecond(quint64 enKey, QByteArray &&fileDataBuf)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray &&FileModifier::modMethodThird(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodThird(quint64 enKey, QByteArray &&fileDataBuf)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray &&FileModifier::modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodFourth(quint64 enKey, QByteArray &&fileDataBuf)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray &&FileModifier::modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf)
+QByteArray&& FileModifier::modMethodFifth(quint64 enKey, QByteArray &&fileDataBuf)
 {
     return std::move(fileDataBuf);
+}
+
+QByteArray FileModifier::toQByteFromeQBit(QBitArray&& bits)
+{
+    QBitArray bufBits(8, 0);
+    QByteArray bufBytes;
+    bufBytes.resize(1);
+
+    int bitsSize = bits.size();
+
+    QByteArray bytes;
+    bytes.clear();
+    bytes.resize(bitsSize / 8);
+    bytes.fill('\00');
+
+    for(int i = 0; i < bitsSize; i++)
+    {
+            bufBits.setBit(i%8, bits.at(i));
+
+            if(((i+1) % 8) == 0)
+            {
+                for(int j = 0; j < 8; j++)
+                {
+                    bufBytes[0] = (bufBytes.at(0) | (bufBits[j]<<(j%8)));
+                }
+
+                bytes[i/8] = bufBytes.at(0);
+
+                bufBytes.clear();
+                bufBytes.resize(1);
+            }
+    }
+
+    return bytes;
 }
 
 void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString& foolder,

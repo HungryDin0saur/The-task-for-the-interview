@@ -40,8 +40,9 @@ private:
     static QByteArray&& modMethodThird(quint64 enKey, QByteArray&& fileDataBuf);
     static QByteArray&& modMethodFourth(quint64 enKey, QByteArray&& fileDataBuf);
     static QByteArray&& modMethodFifth(quint64 enKey, QByteArray&& fileDataBuf);
-
     std::function<QByteArray&& (quint64, QByteArray&&)> methodFileModPtr = nullptr;
+
+    static QByteArray toQByteFromeQBit(QBitArray &&bits);
 
     void writeFile(QByteArray &&fileDataBuf, QString filePath);
 
