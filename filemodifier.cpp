@@ -35,11 +35,13 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 {
     //quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
     quint64 enKey = enencryptionKey.toLongLong(); //18446744073709551615 - max, добавить проверку
-    qint64 fileSize = this->file->size();
+    qint64 fileSize = 0;
 
     while(!fileList.empty())
     {
         this->file->setFileName(fileList.top());
+        fileSize = file->size();
+
         if((!this->file->isOpen()) && (this->file->open(QFile::ReadOnly)) && (fileSize != 0))
         {
             fileDataBuf = std::move(FileModifier::file->readAll());
@@ -185,7 +187,7 @@ QByteArray FileModifier::toQByteFromeQBit(QBitArray&& bits)
 }
 
 void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString foolder,
-                                 const bool actionsRepeatingFile, const unsigned long frequencyCheckingFiles,
+                                 const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
                                  const unsigned short FileModMethods)
 {
     this->fileMask = fileMask;
