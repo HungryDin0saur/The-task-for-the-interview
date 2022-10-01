@@ -17,9 +17,9 @@ FileModifier::~FileModifier()
     delete dir;
 }
 
-const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString fileFilters)
+std::stack<QString>&& FileModifier::lookFiles(const QString folder, const QString fileFilters)
 {
-    dir->setPath(foolder.remove(0, 8) + '/');
+    this->dir->setPath(foolder.remove(0, 8) + '/');
     QDirIterator dirIter(dir->path(), dir->entryList(QStringList(fileFilters)));
 
     while (dirIter.hasNext())
@@ -27,45 +27,57 @@ const std::stack<QString> &FileModifier::lookFiles(const QString folder, QString
         this->fileList.emplace(dirIter.next());
     }
 
-    return this->fileList;
+    return std::move(this->fileList);
 }
 
 void FileModifier::openAndModify(std::stack<QString> fileList,
-                                 std::function<QByteArray&& (quint64, QByteArray&&, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
+                                 std::function<QByteArray&& (quint64, quint64, QByteArray&&, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
 {
     //quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
     quint64 enKey = enencryptionKey.toLongLong(); //18446744073709551615 - max, добавить проверку
+    qint64 fileSize = this->file->size();
 
     while(!fileList.empty())
     {
-        file->setFileName(fileList.top());
-        if(file->open(QFile::ReadWrite))
+        this->file->setFileName(fileList.top());
+        if((!this->file->isOpen()) && (this->file->open(QFile::ReadOnly)) && (fileSize != 0))
         {
             fileDataBuf = std::move(FileModifier::file->readAll());
-            writeFile(methodFileModPtr(enKey, std::move(fileDataBuf), std::move(outBytes)), fileList.top());
+            this->file->close();
+            writeFile(methodFileModPtr(enKey, fileSize, std::move(fileDataBuf), std::move(outBytes)), std::move(fileList.top()));
         }
-        else{
+        else
+        {
             //Кунуть исключени
+            this->file->close();
+            fileList.pop();
+
+            return;
         }
 
         fileList.pop();
-        FileModifier::file->close();
     }
 }
 
-void FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath)
+void FileModifier::writeFile(QByteArray&& fileDataBuf, const QString&& filePath)
 {
-    file->setFileName(filePath);
-    if(file->open(QFile::WriteOnly))
+    this->file->setFileName(filePath);
+    if((!this->file->isOpen()) && (this->file->open(QFile::WriteOnly)))
     {
-      qDebug() << file->write(fileDataBuf);
+      qDebug() << "writeFile SIZE: " << this->file->write(fileDataBuf);
+      fileDataBuf.clear();
     }
     else{
+        this->file->close();
+        fileDataBuf.clear();
         //Кунуть исключени
     }
+
+    this->file->close();
+    fileDataBuf.clear();
 }
 
-QByteArray &&FileModifier::xOR(const quint64 enKey, QByteArray&& fileDataBuf, QByteArray&& outBytes)
+QByteArray &&FileModifier::xOR(const quint64 enKey, const quint64 fileSize, QByteArray&& fileDataBuf, QByteArray&& outBytes)
 {
 /*
  *  Так нельзя, потому что мне было необходимо беззнаковой представление
@@ -103,17 +115,9 @@ QByteArray &&FileModifier::xOR(const quint64 enKey, QByteArray&& fileDataBuf, QB
            {
                i = 0;
 
-               //bitsToXor ^= bitsEnKey;
-               //qDebug() << "Bit mass: " << bitsToXor;
-               //qDebug() << "Variable xor: " << bitsEnKey;
-               //qDebug() << "Res xor: " << bitsToXor;
+               bitsToXor ^= bitsEnKey;
 
                outBytes.append(toQByteFromeQBit(std::move(bitsToXor)));
-
-               //fileDataBuf.replace(i, itrBytes, bufBytes);
-
-               qDebug() << outBytes;
-
 
                bitsToXor.fill(0, 64);
            }
@@ -121,25 +125,27 @@ QByteArray &&FileModifier::xOR(const quint64 enKey, QByteArray&& fileDataBuf, QB
        while ((i % 8) != 0);
    }
 
+   outBytes.remove(fileSize, outBytes.size() - fileSize);
+
    return std::move(outBytes);
 }
 
-QByteArray&& FileModifier::modMethodSecond(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
+QByteArray&& FileModifier::modMethodSecond(const quint64 enKey, const quint64 fileSize, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray&& FileModifier::modMethodThird(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
+QByteArray&& FileModifier::modMethodThird(const quint64 enKey, const quint64 fileSize, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray&& FileModifier::modMethodFourth(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
+QByteArray&& FileModifier::modMethodFourth(const quint64 enKey, const quint64 fileSize, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
 
-QByteArray&& FileModifier::modMethodFifth(const quint64 enKey, QByteArray &&fileDataBuf, QByteArray &&outBytes)
+QByteArray&& FileModifier::modMethodFifth(const quint64 enKey, const quint64 fileSize, QByteArray &&fileDataBuf, QByteArray &&outBytes)
 {
     return std::move(fileDataBuf);
 }
@@ -178,7 +184,7 @@ QByteArray FileModifier::toQByteFromeQBit(QBitArray&& bits)
     return bytes;
 }
 
-void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString& foolder,
+void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString foolder,
                                  const bool actionsRepeatingFile, const unsigned long frequencyCheckingFiles,
                                  const unsigned short FileModMethods)
 {
@@ -210,6 +216,9 @@ void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, cons
         break;
     }
 
-    openAndModify(lookFiles(this->foolder, this->fileMask), methodFileModPtr, this->enencryptionKey);
+     //Передать стек по двойной ссылке
+    openAndModify(std::move(lookFiles(this->foolder, this->fileMask)), methodFileModPtr, this->enencryptionKey);
+
+    methodFileModPtr = nullptr;
 }
 

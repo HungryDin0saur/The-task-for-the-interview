@@ -145,6 +145,7 @@ Window {
             onClicked: {
                 setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
                               overwriteFilesCheck.checked, frequencyTime.value, 0);
+                //console.log()
             }
         }
     }
