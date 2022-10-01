@@ -49,6 +49,7 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
             fileDataBuf = std::move(file->readAll());
             file->close();
             writeFile(methodFileModPtr(enKey, fileSize, std::move(fileDataBuf), std::move(outBytes)), std::move(fileList.top()));
+            fileList.pop();
         }
         else
         {
@@ -58,27 +59,25 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 
             return;
         }
-
-        fileList.pop();
     }
 }
 
-void FileModifier::writeFile(QByteArray&& fileDataBuf, const QString&& filePath)
+bool FileModifier::writeFile(QByteArray&& fileDataBuf, const QString&& filePath)
 {
     file->setFileName(filePath);
     if((!file->isOpen()) && (file->open(QFile::WriteOnly)))
     {
       qDebug() << "WRITE SIZE: " << file->write(fileDataBuf);
+      file->close();
       fileDataBuf.clear();
+      return true;
     }
     else{
         file->close();
         fileDataBuf.clear();
-        //Кунуть исключени
+        //Кинуть исключение
+        return false;
     }
-
-    file->close();
-    fileDataBuf.clear();
 }
 
 QByteArray &&FileModifier::xOR(const quint64 enKey, const quint64 fileSize, QByteArray&& fileDataBuf, QByteArray&& outBytes)
@@ -200,23 +199,20 @@ void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, cons
     this->enencryptionKey = enencryptionKey;
 
     switch (FileModMethods) {
-    case 0:
+    case 1:
         methodFileModPtr = xOR;
         break;
-    case 1:
+    case 2:
         methodFileModPtr = modMethodSecond;
         break;
-    case 2:
+    case 3:
         methodFileModPtr = modMethodThird;
         break;
-    case 3:
+    case 4:
         methodFileModPtr = modMethodFourth;
         break;
-    case 4:
+    case 5:
         methodFileModPtr = modMethodFifth;
-        break;
-    default:
-        //Здесь можно бросить исключение
         break;
     }
 

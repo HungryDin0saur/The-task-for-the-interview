@@ -29,7 +29,7 @@ public:
 private:
     static QFile* file;
     static QDir* dir;
-    QByteArray fileDataBuf;
+    QByteArray fileDataBuf;  //Добавить обработчик исключения std::bad_alloc и проверку на макс. длину файла
     std::stack<QString> fileList;
     QByteArray outBytes;
 
@@ -45,7 +45,7 @@ private:
 
     static QByteArray toQByteFromeQBit(QBitArray &&bits);
 
-    void writeFile(QByteArray&& fileDataBuf, const QString &&filePath);
+    bool writeFile(QByteArray&& fileDataBuf, const QString &&filePath);
 
 public slots:
     void setUpSettings(QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString foolder,

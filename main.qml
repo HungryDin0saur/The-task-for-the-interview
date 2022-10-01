@@ -15,6 +15,7 @@ Window {
 
     readonly property real textFieldMinimumWidth: mainApplicationWindow.width / 4
     readonly property real butttonMinimumWidth: mainApplicationWindow.width / 8
+    property string rbClicked; property real rbClickedNum;
     readonly property color mainBackColor: "#ffe4b5"
     readonly property color itemsColor: "#daa520"
 
@@ -70,14 +71,15 @@ Window {
             Label {
                 text: qsTr("Actions when repeating the file name: ")
             }
-
             RadioButton {
                 id: overwriteFilesCheck
                 checked: true
                 text: qsTr("Overwrite files")
+                ButtonGroup.group: rBgOverWgroup
             }
             RadioButton {
                 text: qsTr("Modify file names")
+                ButtonGroup.group: rBgOverWgroup
             }
         }
 
@@ -101,31 +103,35 @@ Window {
             Label {
                 text: qsTr("File modification methods: ")
             }
-            ButtonGroup { id: rBgModeroup }
+            ButtonGroup {
+                id: rBgModegroup
+                exclusive: true;
+            }
             RadioButton {
+                id: rb0
                 checked: true
-                text: qsTr("XOR")
-                ButtonGroup.group: rBgModeroup
+                text: qsTr("1) XOR")
+                ButtonGroup.group: rBgModegroup
             }
             RadioButton {
                 id: rb1
-                text: qsTr("empty")
-                ButtonGroup.group: rBgModeroup
+                text: qsTr("2) empty")
+                ButtonGroup.group: rBgModegroup
             }
             RadioButton {
                 id: rb2
-                text: qsTr("empty")
-                ButtonGroup.group: rBgModeroup
+                text: qsTr("3) empty")
+                ButtonGroup.group: rBgModegroup
             }
             RadioButton {
                 id: rb3
-                text: qsTr("empty")
-                ButtonGroup.group: rBgModeroup
+                text: qsTr("4) empty")
+                ButtonGroup.group: rBgModegroup
             }
             RadioButton {
                 id: rb4
-                text: qsTr("empty")
-                ButtonGroup.group: rBgModeroup
+                text: qsTr("5) empty")
+                ButtonGroup.group: rBgModegroup
             }
         }
 
@@ -143,8 +149,11 @@ Window {
             text: qsTr("Set up settings and start")
 
             onClicked: {
+                rbClicked = rBgModegroup.checkedButton.text;
+                rbClickedNum = rbClicked.charAt(0);
+
                 setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
-                              overwriteFilesCheck.checked, frequencyTime.value, 0);
+                              overwriteFilesCheck.checked, frequencyTime.value, rbClickedNum);
             }
         }
     }
