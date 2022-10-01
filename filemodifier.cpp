@@ -1,10 +1,13 @@
 #include "filemodifier.h"
 
+QFile* FileModifier::file;
+QDir* FileModifier::dir;
+
 FileModifier::FileModifier(QObject *parent)
     : QObject{parent}
 {
-    this->file = new QFile;
-    this->dir = new QDir;
+    FileModifier::file = new QFile;
+    FileModifier::dir = new QDir;
 }
 
 FileModifier::~FileModifier()
@@ -13,13 +16,13 @@ FileModifier::~FileModifier()
 
     methodFileModPtr = nullptr;
 
-    delete file;
-    delete dir;
+    delete FileModifier::file;
+    delete FileModifier::dir;
 }
 
 std::stack<QString>&& FileModifier::lookFiles(const QString folder, const QString fileFilters)
 {
-    this->dir->setPath(foolder.remove(0, 8) + '/');
+    dir->setPath(foolder.remove(0, 8) + '/');
     QDirIterator dirIter(dir->path(), dir->entryList(QStringList(fileFilters)));
 
     while (dirIter.hasNext())
@@ -33,25 +36,24 @@ std::stack<QString>&& FileModifier::lookFiles(const QString folder, const QStrin
 void FileModifier::openAndModify(std::stack<QString> fileList,
                                  std::function<QByteArray&& (quint64, quint64, QByteArray&&, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
 {
-    //quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
-    quint64 enKey = enencryptionKey.toLongLong(); //18446744073709551615 - max, добавить проверку
+    quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
     qint64 fileSize = 0;
 
     while(!fileList.empty())
     {
-        this->file->setFileName(fileList.top());
+        file->setFileName(fileList.top());
         fileSize = file->size();
 
-        if((!this->file->isOpen()) && (this->file->open(QFile::ReadOnly)) && (fileSize != 0))
+        if((!file->isOpen()) && (file->open(QFile::ReadOnly)) && (fileSize != 0))
         {
-            fileDataBuf = std::move(FileModifier::file->readAll());
-            this->file->close();
+            fileDataBuf = std::move(file->readAll());
+            file->close();
             writeFile(methodFileModPtr(enKey, fileSize, std::move(fileDataBuf), std::move(outBytes)), std::move(fileList.top()));
         }
         else
         {
             //Кунуть исключени
-            this->file->close();
+            file->close();
             fileList.pop();
 
             return;
@@ -63,19 +65,19 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
 
 void FileModifier::writeFile(QByteArray&& fileDataBuf, const QString&& filePath)
 {
-    this->file->setFileName(filePath);
-    if((!this->file->isOpen()) && (this->file->open(QFile::WriteOnly)))
+    file->setFileName(filePath);
+    if((!file->isOpen()) && (file->open(QFile::WriteOnly)))
     {
-      qDebug() << "writeFile SIZE: " << this->file->write(fileDataBuf);
+      qDebug() << "WRITE SIZE: " << file->write(fileDataBuf);
       fileDataBuf.clear();
     }
     else{
-        this->file->close();
+        file->close();
         fileDataBuf.clear();
         //Кунуть исключени
     }
 
-    this->file->close();
+    file->close();
     fileDataBuf.clear();
 }
 

@@ -27,8 +27,8 @@ public:
     QString enencryptionKey;
 
 private:
-    QFile* file;
-    QDir* dir;
+    static QFile* file;
+    static QDir* dir;
     QByteArray fileDataBuf;
     std::stack<QString> fileList;
     QByteArray outBytes;
