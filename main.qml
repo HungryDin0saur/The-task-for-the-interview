@@ -46,6 +46,10 @@ Window {
             id: checkDelInputFile
             Layout.alignment: Qt.AlignLeft
             text: qsTr("Delete input file")
+            checkState: Qt.Checked
+            onCheckedChanged: {
+                //Выключить modifyFileNamesCheck и overwriteFilesCheck
+            }
         }
 
         RowLayout {
@@ -75,11 +79,10 @@ Window {
                 id: overwriteFilesCheck
                 checked: true
                 text: qsTr("Overwrite files")
-                ButtonGroup.group: rBgOverWgroup
             }
             RadioButton {
+                id: modifyFileNamesCheck
                 text: qsTr("Modify file names")
-                ButtonGroup.group: rBgOverWgroup
             }
         }
 

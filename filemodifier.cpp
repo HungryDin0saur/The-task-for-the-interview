@@ -2,6 +2,7 @@
 
 QFile* FileModifier::file;
 QDir* FileModifier::dir;
+quint64 FileModifier::nameCounter = 0;
 
 FileModifier::FileModifier(QObject *parent)
     : QObject{parent}
@@ -20,9 +21,9 @@ FileModifier::~FileModifier()
     delete FileModifier::dir;
 }
 
-std::stack<QString>&& FileModifier::lookFiles(const QString folder, const QString fileFilters)
+std::stack<QString>&& FileModifier::lookFiles(QString folder, const QString fileFilters)
 {
-    dir->setPath(foolder.remove(0, 8) + '/');
+    dir->setPath(folder.remove(0, 8) + '/');
     QDirIterator dirIter(dir->path(), dir->entryList(QStringList(fileFilters)));
 
     while (dirIter.hasNext())
@@ -34,7 +35,8 @@ std::stack<QString>&& FileModifier::lookFiles(const QString folder, const QStrin
 }
 
 void FileModifier::openAndModify(std::stack<QString> fileList,
-                                 std::function<QByteArray&& (quint64, quint64, QByteArray&&, QByteArray&&)> methodFileModPtr, QString enencryptionKey)
+                                 std::function<QByteArray&& (quint64, quint64, QByteArray&&, QByteArray&&)> methodFileModPtr,
+                                 QString enencryptionKey, const bool deleteImputFile)
 {
     quint64 enKey = enencryptionKey.toULongLong(); //18446744073709551615 - max, добавить проверку
     qint64 fileSize = 0;
@@ -48,7 +50,8 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
         {
             fileDataBuf = std::move(file->readAll());
             file->close();
-            writeFile(methodFileModPtr(enKey, fileSize, std::move(fileDataBuf), std::move(outBytes)), std::move(fileList.top()));
+            writeFile(methodFileModPtr(enKey, fileSize, std::move(fileDataBuf), std::move(outBytes)),
+                      fileList.top(), deleteImputFile, this->actionsRepeatingFile);
             fileList.pop();
         }
         else
@@ -62,21 +65,59 @@ void FileModifier::openAndModify(std::stack<QString> fileList,
     }
 }
 
-bool FileModifier::writeFile(QByteArray&& fileDataBuf, const QString&& filePath)
+bool FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath, const bool deleteImputFile, const bool actionsRepeatingFile)
 {
     file->setFileName(filePath);
-    if((!file->isOpen()) && (file->open(QFile::WriteOnly)))
+    if((!file->isOpen()) && (file->open(QFile::ReadWrite)))
     {
-      qDebug() << "WRITE SIZE: " << file->write(fileDataBuf);
-      file->close();
-      fileDataBuf.clear();
-      return true;
+        if(deleteImputFile)
+        {
+            qDebug() << "WRITE SIZE: " << file->write(fileDataBuf); //В данной ситуации не может воникнуть двух одноименных выходных файла
+            file->close();
+            fileDataBuf.clear();
+            return true;
+        }else
+        {
+            file->close();
+            file->setFileName(filePath.replace(filePath.size() - 4, 11, "_MODYFED." + filePath.right(3)));
+            qDebug() << "WRITE SIZE: " <<  writeModForWriteFile(std::move(fileDataBuf), actionsRepeatingFile);
+            file->close();
+            fileDataBuf.clear();
+            return true;
+        }
     }
     else{
         file->close();
         fileDataBuf.clear();
         //Кинуть исключение
         return false;
+    }
+}
+
+qint64 FileModifier::writeModForWriteFile(QByteArray&& fileDataBuf, const bool actionsRepeatingFile)
+{
+    if(file->exists())
+    {
+        if(actionsRepeatingFile) //ПЕРЕЗАПИСЬ
+        {
+            file->open(QFile::WriteOnly);
+            return file->write(fileDataBuf);
+        }
+        else  //СЧЕТЧИК К ИМЕНИ
+        {
+
+            file->setFileName(file->fileName().replace((file->fileName().size() - 4),
+                                                       (QString::number(nameCounter).size() + 4),
+                                                       (QString::number(nameCounter) + file->fileName().right(4))));
+            file->open(QFile::NewOnly);
+            nameCounter++;
+            return file->write(fileDataBuf);
+        }
+    }
+    else
+    {
+        file->open(QFile::WriteOnly);
+        return file->write(fileDataBuf);
     }
 }
 
@@ -187,16 +228,12 @@ QByteArray FileModifier::toQByteFromeQBit(QBitArray&& bits)
     return bytes;
 }
 
-void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, const bool deleteImputFile, const QString foolder,
+void FileModifier::setUpSettings(const QString fileMask, QString enencryptionKey, const bool deleteImputFile, QString folder,
                                  const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
                                  const unsigned short FileModMethods)
 {
-    this->fileMask = fileMask;
-    this->deleteImputFile = deleteImputFile;
-    this->foolder = foolder;
     this->actionsRepeatingFile = actionsRepeatingFile;
     this->frequencyCheckingFiles = frequencyCheckingFiles;
-    this->enencryptionKey = enencryptionKey;
 
     switch (FileModMethods) {
     case 1:
@@ -217,7 +254,7 @@ void FileModifier::setUpSettings(QString fileMask, QString enencryptionKey, cons
     }
 
      //Передать стек по двойной ссылке
-    openAndModify(std::move(lookFiles(this->foolder, this->fileMask)), methodFileModPtr, this->enencryptionKey);
+    openAndModify(std::move(lookFiles(folder, fileMask)), methodFileModPtr, enencryptionKey, deleteImputFile);
 
     methodFileModPtr = nullptr;
 }

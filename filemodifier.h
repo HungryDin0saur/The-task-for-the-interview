@@ -20,11 +20,8 @@ public:
     ~FileModifier();
 
     QString fileMask;
-    bool deleteImputFile = false;
-    QString foolder;
     bool actionsRepeatingFile = true;
     unsigned long int frequencyCheckingFiles = 0;
-    QString enencryptionKey;
 
 private:
     static QFile* file;
@@ -33,7 +30,7 @@ private:
     std::stack<QString> fileList;
     QByteArray outBytes;
 
-    std::stack<QString>&& lookFiles(const QString folder, const QString fileFilters);
+    std::stack<QString>&& lookFiles(QString folder, const QString fileFilters);
 
      //QByteArray&& не потоко безопасно, зато быстро :)
     static QByteArray&& xOR(const quint64 enKey, const quint64 fileSize, QByteArray&& fileDataBuf, QByteArray &&outBytes);
@@ -45,15 +42,18 @@ private:
 
     static QByteArray toQByteFromeQBit(QBitArray &&bits);
 
-    bool writeFile(QByteArray&& fileDataBuf, const QString &&filePath);
+    bool writeFile(QByteArray&& fileDataBuf, QString filePath, const bool deleteImputFile, const bool actionsRepeatingFile);
+    qint64 writeModForWriteFile(QByteArray &&fileDataBuf, const bool actionsRepeatingFile);
+
+    static quint64 nameCounter;
 
 public slots:
-    void setUpSettings(QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString foolder,
+    void setUpSettings(const QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString folder,
                        const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
                        const unsigned short int FileModMethods);
 
     void openAndModify(std::stack<QString> fileList, std::function<QByteArray&& (quint64, quint64, QByteArray &&, QByteArray &&)> methodFileModPtr,
-                       QString enencryptionKey);
+                       QString enencryptionKey, const bool deleteImputFile);
 signals:
 
 };
