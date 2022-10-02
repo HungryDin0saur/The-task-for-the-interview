@@ -72,7 +72,7 @@ bool FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath, const b
     {
         if(deleteImputFile)
         {
-            qDebug() << "WRITE SIZE: " << file->write(fileDataBuf); //В данной ситуации не может воникнуть двух одноименных выходных файла
+            file->write(fileDataBuf); //В данной ситуации не может воникнуть двух одноименных выходных файла
             file->close();
             fileDataBuf.clear();
             return true;
@@ -80,7 +80,7 @@ bool FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath, const b
         {
             file->close();
             file->setFileName(filePath.replace(filePath.size() - 4, 11, "_MODYFED." + filePath.right(3)));
-            qDebug() << "WRITE SIZE: " <<  writeModForWriteFile(std::move(fileDataBuf), actionsRepeatingFile);
+            writeModForWriteFile(std::move(fileDataBuf), actionsRepeatingFile);
             file->close();
             fileDataBuf.clear();
             return true;
@@ -228,12 +228,10 @@ QByteArray FileModifier::toQByteFromeQBit(QBitArray&& bits)
     return bytes;
 }
 
-void FileModifier::setUpSettings(const QString fileMask, QString enencryptionKey, const bool deleteImputFile, QString folder,
-                                 const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
-                                 const unsigned short FileModMethods)
+bool FileModifier::setUpSettings(const QString fileMask, QString enencryptionKey, const bool deleteImputFile, QString folder,
+                                 const bool actionsRepeatingFile, const unsigned short FileModMethods)
 {
     this->actionsRepeatingFile = actionsRepeatingFile;
-    this->frequencyCheckingFiles = frequencyCheckingFiles;
 
     switch (FileModMethods) {
     case 1:
@@ -257,5 +255,7 @@ void FileModifier::setUpSettings(const QString fileMask, QString enencryptionKey
     openAndModify(std::move(lookFiles(folder, fileMask)), methodFileModPtr, enencryptionKey, deleteImputFile);
 
     methodFileModPtr = nullptr;
+
+    return true;
 }
 

@@ -10,8 +10,6 @@
 #include <stack>
 #include <functional>
 
-#include <QDebug>
-
 class FileModifier : public QObject
 {
     Q_OBJECT
@@ -19,16 +17,15 @@ public:
     explicit FileModifier(QObject *parent = nullptr);
     ~FileModifier();
 
-    QString fileMask;
-    bool actionsRepeatingFile = true;
-    unsigned long int frequencyCheckingFiles = 0;
-
 private:
     static QFile* file;
     static QDir* dir;
     QByteArray fileDataBuf;  //Добавить обработчик исключения std::bad_alloc и проверку на макс. длину файла
     std::stack<QString> fileList;
     QByteArray outBytes;
+
+    QString fileMask;
+    bool actionsRepeatingFile = true;
 
     std::stack<QString>&& lookFiles(QString folder, const QString fileFilters);
 
@@ -48,9 +45,8 @@ private:
     static quint64 nameCounter;
 
 public slots:
-    void setUpSettings(const QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString folder,
-                       const bool actionsRepeatingFile, const unsigned long int frequencyCheckingFiles,
-                       const unsigned short int FileModMethods);
+    bool setUpSettings(const QString fileMask, QString enencryptionKey,  const bool deleteImputFile, const QString folder,
+                       const bool actionsRepeatingFile, const unsigned short int FileModMethods);
 
     void openAndModify(std::stack<QString> fileList, std::function<QByteArray&& (quint64, quint64, QByteArray &&, QByteArray &&)> methodFileModPtr,
                        QString enencryptionKey, const bool deleteImputFile);

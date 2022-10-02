@@ -16,6 +16,7 @@ Window {
     readonly property real textFieldMinimumWidth: mainApplicationWindow.width / 4
     readonly property real butttonMinimumWidth: mainApplicationWindow.width / 8
     property string rbClicked; property real rbClickedNum;
+    property bool timerSetUpSettingsRepeat: false
     readonly property color mainBackColor: "#ffe4b5"
     readonly property color itemsColor: "#daa520"
 
@@ -47,9 +48,6 @@ Window {
             Layout.alignment: Qt.AlignLeft
             text: qsTr("Delete input file")
             checkState: Qt.Checked
-            onCheckedChanged: {
-                //Выключить modifyFileNamesCheck и overwriteFilesCheck
-            }
         }
 
         RowLayout {
@@ -89,7 +87,8 @@ Window {
         ColumnLayout {
 
             Label {
-                text: qsTr("Frequency of checking for the presence of input files (sec): ")
+                text: qsTr("Frequency of checking for the presence of input files (sec).
+                                       if the value is 0 - one-time launch: ")
             }
 
             SpinBox {
@@ -155,13 +154,29 @@ Window {
                 rbClicked = rBgModegroup.checkedButton.text;
                 rbClickedNum = rbClicked.charAt(0);
 
-                setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
-                              overwriteFilesCheck.checked, frequencyTime.value, rbClickedNum);
+                if(setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
+                                 overwriteFilesCheck.checked, rbClickedNum))
+                {
+                    pushSetUpSettingsTimer.start()
+                }
             }
         }
     }
 
+    Item {
+        Timer {
+            id: pushSetUpSettingsTimer
+            interval: frequencyTime * 1000;
+            running: frequencyTime > 0 ? true : false;
+            repeat: timerSetUpSettingsRepeat ? true : false
+            onTriggered: {
+                setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
+                                       overwriteFilesCheck.checked, rbClickedNum)
+                timerSetUpSettingsRepeat: false
+        }
 
+        Text { id: time }
+    }
 
 
     FilePathChooser{
