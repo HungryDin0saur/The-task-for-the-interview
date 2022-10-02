@@ -163,21 +163,18 @@ Window {
         }
     }
 
-    Item {
-        Timer {
-            id: pushSetUpSettingsTimer
-            interval: frequencyTime * 1000;
-            running: frequencyTime > 0 ? true : false;
-            repeat: timerSetUpSettingsRepeat ? true : false
-            onTriggered: {
-                setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
-                                       overwriteFilesCheck.checked, rbClickedNum)
-                timerSetUpSettingsRepeat: false
+    Timer {
+        id: pushSetUpSettingsTimer
+        interval: frequencyTime * 1000;
+        running: frequencyTime > 0 ? true : false;
+        repeat: timerSetUpSettingsRepeat ? true : false
+        onTriggered: {
+            setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
+                                   overwriteFilesCheck.checked, rbClickedNum)
+            timerSetUpSettingsRepeat: false
         }
 
-        Text { id: time }
     }
-
 
     FilePathChooser{
         id: filePathChooser
