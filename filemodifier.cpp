@@ -72,7 +72,7 @@ bool FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath, const b
     {
         if(deleteImputFile)
         {
-            file->write(fileDataBuf); //В данной ситуации не может воникнуть двух одноименных выходных файла
+            qDebug() << "WRITE SIZE: " << file->write(fileDataBuf); //В данной ситуации не может воникнуть двух одноименных выходных файла
             file->close();
             fileDataBuf.clear();
             return true;
@@ -80,7 +80,7 @@ bool FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath, const b
         {
             file->close();
             file->setFileName(filePath.replace(filePath.size() - 4, 11, "_MODYFED." + filePath.right(3)));
-            writeModForWriteFile(std::move(fileDataBuf), actionsRepeatingFile);
+            qDebug() << "WRITE SIZE: " << writeModForWriteFile(std::move(fileDataBuf), actionsRepeatingFile);
             file->close();
             fileDataBuf.clear();
             return true;

@@ -155,25 +155,34 @@ Window {
                 rbClickedNum = rbClicked.charAt(0);
 
                 if(setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
-                                 overwriteFilesCheck.checked, rbClickedNum))
+                                 overwriteFilesCheck.checked, rbClickedNum) && (frequencyTime.value > 0))
                 {
+                    timerSetUpSettingsRepeat: true
                     pushSetUpSettingsTimer.start()
                 }
             }
         }
     }
 
-    Timer {
-        id: pushSetUpSettingsTimer
-        interval: frequencyTime * 1000;
-        running: frequencyTime > 0 ? true : false;
-        repeat: timerSetUpSettingsRepeat ? true : false
-        onTriggered: {
-            setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
-                                   overwriteFilesCheck.checked, rbClickedNum)
-            timerSetUpSettingsRepeat: false
-        }
+    Item {
+        Timer {
+            id: pushSetUpSettingsTimer
+            interval: frequencyTime.value * 1000;
+            running: false;
+            repeat: timerSetUpSettingsRepeat ? true : false
+            onTriggered: {
+                timerSetUpSettingsRepeat: false
+                pushSetUpSettingsTimer.stop()
 
+
+                if(setUpSettings(maskInputFiles.text, fieldIEnencryptionKey.text, checkDelInputFile.checked, folderInput.text,
+                                       overwriteFilesCheck.checked, rbClickedNum))
+                {
+                    timerSetUpSettingsRepeat: true
+                    pushSetUpSettingsTimer.start()
+                }
+            }
+        }
     }
 
     FilePathChooser{
