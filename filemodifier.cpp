@@ -150,7 +150,7 @@ QByteArray &&FileModifier::xOR(const quint64 enKey, const quint64 fileSize, QByt
 
    unsigned int i = 0;
 
-   for(QByteArray::iterator itrBytes = fileDataBuf.begin(); itrBytes <= fileDataBuf.end(); itrBytes++) //auto itrBytes : fileDataBuf
+   for(QByteArray::iterator itrBytes = fileDataBuf.begin(); itrBytes <= fileDataBuf.end(); ++itrBytes) //auto itrBytes : fileDataBuf
    {
        do {
            bitsToXor.setBit(i, *itrBytes&(1ull<<(i%8))); //(((i * 7) - 1) % 8) + (i - (i % 8))
