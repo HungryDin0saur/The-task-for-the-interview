@@ -141,7 +141,7 @@ QByteArray &&FileModifier::xOR(const quint64 enKey, const quint64 fileSize, QByt
 */
 
    QBitArray bitsEnKey(64, 0);
-   for(short int i = 0; i < 64; i++)
+   for(short int i = 0; i < 64; ++i)
    {
        bitsEnKey.setBit(i, enKey&(1ull<<i)); //((((i+1) * 64) - 1) % 65)
    }
