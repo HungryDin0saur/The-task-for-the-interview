@@ -72,7 +72,7 @@ bool FileModifier::writeFile(QByteArray&& fileDataBuf, QString filePath, const b
     {
         if(deleteImputFile)
         {
-            file->write(fileDataBuf); //В данной ситуации не может воникнуть двух одноименных выходных файла
+            file->write(fileDataBuf); //В данной ситуации не может возникнуть двух одноименных выходных файла
             file->close();
             fileDataBuf.clear();
             return true;
@@ -124,7 +124,7 @@ qint64 FileModifier::writeModForWriteFile(QByteArray&& fileDataBuf, const bool a
 QByteArray &&FileModifier::xOR(const quint64 enKey, const quint64 fileSize, QByteArray&& fileDataBuf, QByteArray&& outBytes)
 {
 /*
- *  Так нельзя, потому что мне было необходимо беззнаковой представление
+ *  Так нельзя, потому что мне было необходимо беззнаковое представление
     QBitArray bitsToXor;
     QByteArray fileDataBuf;
     fileDataBuf.push_back('v');
@@ -207,13 +207,13 @@ QByteArray FileModifier::toQByteFromeQBit(QBitArray&& bits)
     bytes.resize(bitsSize / 8);
     bytes.fill('\00');
 
-    for(int i = 0; i < bitsSize; i++)
+    for(int i = 0; i < bitsSize; ++i)
     {
             bufBits.setBit(i%8, bits.at(i));
 
             if(((i+1) % 8) == 0)
             {
-                for(int j = 0; j < 8; j++)
+                for(int j = 0; j < 8; ++j)
                 {
                     bufBytes[0] = (bufBytes.at(0) | (bufBits[j]<<(j%8)));
                 }
